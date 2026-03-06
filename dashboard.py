@@ -100,9 +100,12 @@ time_now  = datetime.now(kampala).strftime("%Y-%m-%d %H:%M Ugandan Time")
 color_map = {"BUY": "🟢", "SELL": "🔴", "HOLD": "🟡"}
 
 # Only show signal if confidence is above 60%
-if confidence >= 60:
+if confidence >= 60 and signal != "HOLD":
     final_signal = signal
     signal_note  = f"High confidence — act on this!"
+elif signal == "HOLD":
+    final_signal = "HOLD"
+    signal_note  = f"No setup right now - stay out"
 else:
     final_signal = "HOLD"
     signal_note  = f"Confidence too low ({confidence}%) — stay out"
