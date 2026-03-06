@@ -113,7 +113,7 @@ st.caption(f"Last updated: {time_now}")
 
 col1, col2, col3, col4 = st.columns(4)
 col1.metric("Current Price", price)
-col2.metric("Signal", f"{color_map[signal]} {final_signal}")
+col2.metric("Signal", f"{color_map[final_signal]} {final_signal}")
 col3.metric("Confidence", f"{confidence}%")
 col4.metric("RSI", rsi_val)
 
