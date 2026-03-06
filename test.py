@@ -131,15 +131,34 @@ data["In_Supply_Zone"] = (
     (data["Strong_Bearish"].shift(1) == 1)
 ).astype(int)
 
-#looks for 3 hours ahead
-future = data["Close"].shift(-6)
+# Define 5 pip threshold
+pip = 0.0015
 
-# Calculate change in percentage
-pct_change = (future - data["Close"]) / data["Close"]
+# Is price near yesterday's high or low?
+near_high = (data["Prev_High"] - data["Close"]).abs() <= pip
+near_low  = (data["Close"] - data["Prev_Low"]).abs() <= pip
 
-# Label each row
-data["Label"] = np.where(pct_change > 0.001, 2,
-                np.where(pct_change < -0.001, 0, 1))
+# Did a liquidity sweep just happen?
+sweep_sell = data["Sweep_High"] == 1
+sweep_buy  = data["Sweep_Low"] == 1
+
+# Is there a reversal candle?
+reversal_sell = (data["Shooting_Star"] == 1) | (data["Bearish_Engulf"] == 1)
+reversal_buy  = (data["Hammer"] == 1) | (data["Bullish_Engulf"] == 1)
+
+# Label based on YOUR strategy (relaxed - 2 out of 3 conditions)
+sell_score = near_high.astype(int) + sweep_sell.astype(int) + reversal_sell.astype(int)
+buy_score  = near_low.astype(int) + sweep_buy.astype(int) + reversal_buy.astype(int)
+
+data["Label"] = np.where(
+    sell_score >= 2, 0,
+    np.where(
+        buy_score >= 2, 2,
+        1
+    )
+)
+
+print(data["Label"].value_counts())
 
 #dropping empty rows
 data.dropna(inplace=True)
